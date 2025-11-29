@@ -1,0 +1,3 @@
+---@class poetry.Plugin
+---@field check function: perform checks to be sure that the plugin is working correctly
+---@field setup function: configure the plugin
