@@ -1,7 +1,7 @@
 local M = {}
 local state = {}
 
-local utils = require("utils.utils")
+local utils = require("poetry_nvim.utils")
 
 M.restart = function()
 	vim.cmd.LspRestart()

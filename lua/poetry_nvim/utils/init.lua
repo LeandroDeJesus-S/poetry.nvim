@@ -14,7 +14,7 @@ M.getPoetryEnv = function()
 	return envPythonPath
 end
 
-M.nvim_011 = vim.version.gt(vim.version(), { 0, 11, 0 })
+M.nvim_011 = vim.version.ge(vim.version(), { 0, 11, 0 })
 
 M.getPython = function(fallbacks)
 	local poetryEnv = M.getPoetryEnv()
