@@ -34,39 +34,41 @@ return {
 	{
 		"LeandroDeJesus-S/poetry.nvim",
 		---@type poetry.Options
-		opts = {
-			---@type poetry.PluginSpec[]
-			plugins = {
-				-- optional (false by default)
-				poetry_shell = { -- just poetry_shell is supported for now
-					enabled = true,
-					opts = {
-						keymaps = { -- default keymaps
-							{
-								"<c-p>",
-								function()
-									Snacks.terminal("poetry shell")
-								end,
-								mode = { "n", "t" },
-								desc = "Toggle Poetry Shell",
-							},
-						},
-					},
-				},
-			},
-            keymaps = {
-                {
-                    mode = "n",
-                    "<leader>pd",
-                    lsp.reset,
-                    desc = "Disable Poetry LSP Environment setup",
+		config = function()
+            require("poetry_nvim").setup({
+                ---@type poetry.PluginSpec[]
+                plugins = {
+                    -- optional (false by default)
+                    poetry_shell = { -- just poetry_shell is supported for now
+                        enabled = true,
+                        opts = {
+                            keymaps = { -- default keymaps
+                                {
+                                    "<c-p>",
+                                    function()
+                                        Snacks.terminal("poetry shell")
+                                    end,
+                                    mode = { "n", "t" },
+                                    desc = "Toggle Poetry Shell",
+                                },
+                            },
+                        },
+                    },
                 },
-            },
-            lsp = "pyright", -- just pyright is supported for now
-            -- a list of custom python environments to try to find if poetry env is not found.
-            -- the list with the default can be found here https://github.com/LeandroDeJesus-S/poetry.nvim/blob/main/lua/poetry_nvim.lua#L15
-            fallback_envs = { "my_custom_env" }, 
-		},
+                keymaps = {
+                    {
+                        mode = "n",
+                        "<leader>pd",
+                        lsp.reset,
+                        desc = "Disable Poetry LSP Environment setup",
+                    },
+                },
+                lsp = "pyright", -- just pyright is supported for now
+                -- a list of custom python environments to try to find if poetry env is not found.
+                -- the list with the default can be found here https://github.com/LeandroDeJesus-S/poetry.nvim/blob/main/lua/poetry_nvim.lua#L15
+                fallback_envs = { "my_custom_env" }, 
+            })
+        end,
 	},
 }
 ```
