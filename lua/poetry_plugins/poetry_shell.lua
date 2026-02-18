@@ -9,7 +9,14 @@ local state = {}
 -- - configure poetry settings
 -- - ...
 
--- Setup the keymaps for the poetry shell plugin
+--- Sets up keymaps for the poetry shell plugin using `which-key.nvim`.
+---
+--- This function defines a default keymap to toggle a poetry shell terminal
+--- and allows for merging additional custom keymaps provided by the caller.
+---
+--- @param extra_keymaps table|nil Optional table of additional keymap definitions.
+---   Each entry should be a table following the `which-key` API format
+---   (e.g., `{ "<leader>k", "action", desc = "Description" }`).
 local function setup_keymaps(extra_keymaps)
 	local wk = require("which-key")
 	local maps = {
@@ -22,12 +29,17 @@ local function setup_keymaps(extra_keymaps)
 			desc = "Toggle Poetry Shell",
 		},
 	}
-	maps = vim.list_extend(extra_keymaps, maps)
+	-- Merge any additional keymaps provided by the user with the default keymaps.
+	-- `vim.list_extend` prepends `extra_keymaps` to `maps`, effectively giving
+	-- precedence to user-defined keymaps if there are overlaps.
+	maps = vim.list_extend(extra_keymaps or {}, maps)
 	wk.add(maps)
 end
 
--- Setup the poetry shell plugin
---- @param opts poetry.PoetryShellOpts
+--- Sets up the poetry shell plugin.
+-- This function performs initial checks, configures keymaps,
+-- and sends a notification to indicate that the plugin is active.
+--- @param opts poetry.PoetryShellOpts Configuration options for the plugin.
 M.setup = function(opts)
 	if not M.check() then
 		return
@@ -36,7 +48,10 @@ M.setup = function(opts)
 	vim.notify("Poetry Shell enabled", vim.log.levels.INFO, {})
 end
 
--- Check if the poetry shell plugin is installed
+--- Checks if the "poetry-plugin-shell" is installed globally for Poetry.
+--- This function caches the result in `state.pshel_installed` to avoid repeated system calls.
+---
+--- @returns boolean True if the plugin is installed, false otherwise.
 M.check = function()
 	if state.pshel_installed then
 		return true

@@ -14,8 +14,21 @@ M.getPoetryEnv = function()
 	return envPythonPath
 end
 
-M.nvim_011 = vim.version.ge(vim.version(), { 0, 11, 0 })
+M.nvim_version = vim.version()
 
+--- Returns true if the current version of neovim is greater than or equal to the specified version
+--- @param majon integer major version
+--- @param minor? integer minor version
+M.nvim_ge = function(majon, minor)
+	minor = minor or 0
+	return M.nvim_version.major > majon or (M.nvim_version.major == majon and M.nvim_version.minor >= minor)
+end
+
+--- Gets the path to a Python executable.
+--- Prioritizes a Poetry environment if found.
+--- Otherwise, searches for common Python environment paths based on provided fallbacks.
+--- @param fallbacks table|nil A list of directory names to search for Python environments.
+--- @return string The path to the Python executable, or an empty string if not found.
 M.getPython = function(fallbacks)
 	local poetryEnv = M.getPoetryEnv()
 	if poetryEnv ~= "" then

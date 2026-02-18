@@ -90,8 +90,12 @@ local state = {
 	keymaps = {},
 }
 
---- @param lsp poetry.LSP: the active LSP object
---- @param keymaps table: a list of keymaps to add to the plugin
+--- Sets up keymaps for the Poetry LSP plugin.
+--- This function registers a base keymap group and extends it with additional keymaps
+--- provided by the plugin or user, specifically for managing the Poetry LSP environment.
+---
+--- @param lsp poetry.LSP The active LSP object from the `poetry` plugin, used to call its methods (e.g., `lsp.reset`).
+--- @param keymaps table A list of `which-key` compatible keymap definitions to be added alongside the base Poetry LSP keymaps.
 local function overall_keymaps(lsp, keymaps)
 	local wk = require("which-key")
 
@@ -108,15 +112,24 @@ local function overall_keymaps(lsp, keymaps)
 	})
 end
 
---- @param opts poetry.Options
+--- Sets up the Neovim poetry integration, initializing LSP and configured plugins.
+--- This function merges user-provided options with default values, dynamically loads
+--- the specified LSP configuration, and then iterates through and sets up
+--- each enabled poetry plugin.
+--- @param opts poetry.Options Configuration options for the poetry integration.
+---   containing `enabled` (boolean) and `opts` (table) for the respective plugin. Defaults to `{}`.
+---   Defaults to `state.default_lsp`.
+---   These are extended with `state.fallback_envs`.
 M.setup = function(opts)
 	local o = opts or {}
 	o.plugins = o.plugins or {}
 	o.lsp = o.lsp or state.default_lsp
+	-- Extend fallback environments, prepending user-defined ones to global fallbacks.
 	o.fallback_envs = vim.list_extend(o.fallback_envs or {}, state.fallback_envs)
 
 	---@type poetry.LSP
 	local lsp = require(string.format("lsps.%s", o.lsp))
+	-- If 'require' returns 'true', it indicates the module was not found or failed to load correctly.
 	if lsp == true then
 		vim.notify("LSP not found or not supported", vim.log.levels.ERROR, {})
 		return
