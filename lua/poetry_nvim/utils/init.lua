@@ -1,5 +1,13 @@
-local M = {}
+local fs = require("poetry_nvim.utils.fs")
 
+local M = {
+	nvim_version = vim.version(),
+}
+
+--- Executes `poetry env info -e` to get the current Poetry virtual environment path.
+--- Returns an empty string if Poetry is not installed or no environment is found.
+---
+--- @return string: Path to the Python executable in the Poetry environment, or empty string
 M.getPoetryEnv = function()
 	if vim.fn.executable("poetry") == 0 then
 		vim.notify("poetry not found, please install it", vim.log.levels.ERROR, {})
@@ -14,8 +22,6 @@ M.getPoetryEnv = function()
 	return envPythonPath
 end
 
-M.nvim_version = vim.version()
-
 --- Returns true if the current version of neovim is greater than or equal to the specified version
 --- @param majon integer major version
 --- @param minor? integer minor version
@@ -24,31 +30,25 @@ M.nvim_ge = function(majon, minor)
 	return M.nvim_version.major > majon or (M.nvim_version.major == majon and M.nvim_version.minor >= minor)
 end
 
---- Gets the path to a Python executable.
---- Prioritizes a Poetry environment if found.
---- Otherwise, searches for common Python environment paths based on provided fallbacks.
---- @param fallbacks table|nil A list of directory names to search for Python environments.
---- @return string The path to the Python executable, or an empty string if not found.
-M.getPython = function(fallbacks)
-	local poetryEnv = M.getPoetryEnv()
-	if poetryEnv ~= "" then
-		return poetryEnv
-	end
-
-	-- try to find common python env paths
+--- Searches for a Python executable in common virtual environment directories.
+--- Checks each fallback directory name in the current working directory and validates
+--- the path using the fs module. Returns the first valid Python executable found.
+---
+--- @param fallbacks string[]: List of directory names to search (e.g., {".venv", "venv"})
+--- @return string: Path to Python executable, or empty string if not found
+M.getFallbackEnv = function(fallbacks)
 	local envNameCandidates = fallbacks or {}
 	local wd = vim.fn.getcwd()
 
 	for _, envName in ipairs(envNameCandidates) do
-		local envPath = vim.fn.glob(vim.fs.joinpath(wd, envName, "bin", "python3"))
-			or vim.fn.glob(vim.fs.joinpath(wd, envName, "bin", "python"))
+		local envPath = vim.fn.glob(vim.fs.joinpath(wd, envName, "bin"))
+		local path = fs.validate_and_resolve_python_path(envPath)
 
-		if envPath ~= "" then
-			return envPath
+		if path ~= "" then
+			return path
 		end
 	end
 
-	vim.notify("Unable to find python environment", vim.log.levels.ERROR, {})
 	return ""
 end
 

@@ -1,7 +1,10 @@
+--- LSP module type definitions for poetry.nvim.
+--- Defines the interface that LSP plugins (like pyright) must implement.
+---
 ---@class poetry.LSPOptions
----@field fallback_envs string[]: python environments to try to find if poetry env is not found
+---@field fallback_envs string[]: Python virtual environment directory names to search if Poetry env is not found
 
 ---@class poetry.LSP
----@field configure fun(opts: poetry.LSPOptions): nil setup the LSP config to work properly.
----@field restart function()nil restart the LSP
----@field reset function() nil disable the LSP config
+---@field configure fun(opts: poetry.LSPOptions): nil Configure the LSP to work with Poetry environments
+---@field restart fun(): nil Restart the LSP client
+---@field reset fun(): nil Reset the LSP configuration to original state

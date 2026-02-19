@@ -1,3 +1,6 @@
+--- Plugin module type definitions for poetry.nvim.
+--- Defines the interface that plugin modules (like poetry_shell) must implement.
+---
 ---@class poetry.Plugin
----@field check function: perform checks to be sure that the plugin is working correctly
----@field setup function: configure the plugin
+---@field check fun(): boolean Perform checks to ensure the plugin is working correctly
+---@field setup fun(opts?: table) Configure the plugin with given options

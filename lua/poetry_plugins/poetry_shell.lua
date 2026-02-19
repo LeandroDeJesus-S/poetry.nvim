@@ -1,6 +1,14 @@
+--- Poetry Shell plugin for poetry.nvim.
+--- Provides a keymap to toggle a Poetry shell terminal using snacks.nvim.
+---
 ---@class poetry.PoetryShellOpts
----@field keymaps table: keymaps to add to the poetry shell plugin
+---@field keymaps? table: Additional keymaps to add to the plugin
 
+---@class poetry.PoetryShell
+---@field setup fun(opts: poetry.PoetryShellOpts): nil Set up the poetry shell plugin
+---@field check fun(): boolean Check if the poetry-plugin-shell is installed
+
+---@type poetry.PoetryShell
 local M = {}
 local state = {}
 

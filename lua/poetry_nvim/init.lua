@@ -1,12 +1,12 @@
 ---@class poetry.PluginOpt
----@field enabled boolean: whether enable the plugin
----@field opts? table: plugin options
+---@field enabled boolean: whether to enable the plugin
+---@field opts? table: plugin-specific options
 
 ---@class poetry.Options
----@field plugins table<string, poetry.PluginOpt>: poetry plugins configuration
----@field lsp? string: the name of the lsp client
----@field fallback_envs? string[]: python environments to try to find if poetry env is not found
----@field keymaps? table: keymaps to add to the poetry shell plugin
+---@field plugins table<string, poetry.PluginOpt>: poetry plugins configuration (keyed by plugin name)
+---@field lsp? string: the name of the LSP client to use (default: "pyright")
+---@field fallback_envs? string[]: Python virtual environment directory names to search if Poetry env is not found
+---@field keymaps? table: additional keymaps to add via which-key
 
 local M = {}
 local state = {
@@ -90,12 +90,12 @@ local state = {
 	keymaps = {},
 }
 
---- Sets up keymaps for the Poetry LSP plugin.
---- This function registers a base keymap group and extends it with additional keymaps
---- provided by the plugin or user, specifically for managing the Poetry LSP environment.
+--- Registers keymaps for the Poetry plugin using which-key.nvim.
+--- Creates a "<leader>p" prefix group and adds the default "<leader>pd" keymap
+--- to reset the LSP environment. Additional keymaps can be merged in.
 ---
---- @param lsp poetry.LSP The active LSP object from the `poetry` plugin, used to call its methods (e.g., `lsp.reset`).
---- @param keymaps table A list of `which-key` compatible keymap definitions to be added alongside the base Poetry LSP keymaps.
+--- @param lsp poetry.LSP: The LSP module with methods like `lsp.reset`
+--- @param keymaps table: Additional which-key keymap definitions to merge
 local function overall_keymaps(lsp, keymaps)
 	local wk = require("which-key")
 
@@ -112,14 +112,10 @@ local function overall_keymaps(lsp, keymaps)
 	})
 end
 
---- Sets up the Neovim poetry integration, initializing LSP and configured plugins.
---- This function merges user-provided options with default values, dynamically loads
---- the specified LSP configuration, and then iterates through and sets up
---- each enabled poetry plugin.
---- @param opts poetry.Options Configuration options for the poetry integration.
----   containing `enabled` (boolean) and `opts` (table) for the respective plugin. Defaults to `{}`.
----   Defaults to `state.default_lsp`.
----   These are extended with `state.fallback_envs`.
+--- Initializes the poetry.nvim plugin with the given configuration. Loads the specified LSP client, sets up enabled plugins, registers keymaps,
+--- and configures the LSP with fallback environment paths.
+---
+--- @param opts poetry.Options: Configuration options for the plugin
 M.setup = function(opts)
 	local o = opts or {}
 	o.plugins = o.plugins or {}
